@@ -244,3 +244,7 @@ body.portrait #mob #cmp{font-size:.72em;padding:.2em .3em}
 body.portrait #mob #subs{font-size:.74em}
 body.portrait #panel{display:block;position:absolute;left:.5em;right:auto;bottom:auto;top:calc(33dvh - 25vw);width:44vw;aspect-ratio:600/340;z-index:4}
 body.portrait #panel.full{position:fixed;inset:0;width:100%;height:100%;top:0;left:0;aspect-ratio:auto;z-index:30}
+/* 手機：捲動區的上方留白是透明的，不可擋住 3D 的拖曳旋轉 */
+body.portrait #mob{pointer-events:none}
+body.portrait #mob .msec{pointer-events:auto}
+body.portrait #gl{touch-action:none}
