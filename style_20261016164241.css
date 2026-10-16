@@ -251,3 +251,6 @@ body.portrait #gl{touch-action:none}
 /* 手機：「完成訓練」放進底部導覽列（取代「繼續」的位置），不遮住因果圖 */
 body.portrait #finish{position:fixed;top:auto;left:50%;bottom:calc(.5em + env(safe-area-inset-bottom));transform:translateX(18%);z-index:22}
 body.portrait #finishBtn{font-size:.62em;padding:.55em 1.3em;letter-spacing:.06em}
+/* 「完成訓練」放在「重播」與「靜音」之間 */
+body.portrait #finish{left:auto;right:3.7em;transform:none}
+body.portrait #nav{justify-content:flex-start;padding-left:.8em}
