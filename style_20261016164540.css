@@ -254,3 +254,4 @@ body.portrait #finishBtn{font-size:.62em;padding:.55em 1.3em;letter-spacing:.06e
 /* 「完成訓練」放在「重播」與「靜音」之間 */
 body.portrait #finish{left:auto;right:3.7em;transform:none}
 body.portrait #nav{justify-content:flex-start;padding-left:.8em}
+body.portrait #nav{background:#000}
