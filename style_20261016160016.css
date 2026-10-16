@@ -202,3 +202,33 @@ body.portrait #cmp{left:auto;right:.5em;width:64%;top:calc(55% + 1.8em);font-siz
 #vrBtn{position:absolute;left:calc(58% + 1em);bottom:8.2em;padding:.35em 1em;border-radius:999px;border:1px solid var(--cork);background:rgba(0,0,0,.6);color:var(--cork);font:700 .62em var(--sans);cursor:pointer;z-index:3}
 body.portrait #cmp{width:auto;left:.5em;right:.5em;font-size:.42em}
 body.portrait #vrBtn{left:auto;right:.5em;bottom:auto;top:calc(55% + .4em)}
+
+/* ===== 手機直向：上方 3D（72dvh）＋下方捲動的完整資訊 ===== */
+#mob{display:none}
+body.portrait{overflow:auto;display:block;height:auto}
+body.portrait #stage{width:100vw;height:auto;min-height:100dvh;overflow:visible;font-size:3.4vw;padding-bottom:4.6em}
+body.portrait #gl,body.portrait #bg{position:absolute;inset:auto;top:0;left:0;width:100%;height:72dvh}
+body.portrait #divider{top:39.6dvh}
+body.portrait #vl1{top:5.4em;right:.5em}body.portrait #vl2{top:calc(39.6dvh + .4em)}
+body.portrait #speeds{top:7.4em;right:.5em;font-size:.62em}
+body.portrait #views{top:calc(72dvh - 2.6em);bottom:auto;font-size:.7em}
+body.portrait #vrBtn{top:calc(39.6dvh + .4em);right:.5em;left:auto;bottom:auto}
+body.portrait #heatBtn,body.portrait #relBtn,body.portrait #dbgBtn,body.portrait #dbg{display:none}
+body.portrait #nav{position:fixed;left:0;right:0;bottom:0;justify-content:center;gap:.6em;padding:.55em .5em calc(.55em + env(safe-area-inset-bottom));background:rgba(0,0,0,.9);border-top:1px solid var(--line);z-index:20}
+body.portrait #nav button{font-size:.8em;padding:.45em 1.1em}
+body.portrait #sound{position:fixed;right:.6em;bottom:calc(.75em + env(safe-area-inset-bottom));z-index:21;font-size:.7em}
+body.portrait #mob{display:block;position:relative;margin-top:0;padding-top:72dvh}body.portrait #stage{display:flow-root}
+body.portrait .msec{padding:.75em .8em;border-top:1px solid var(--line)}
+body.portrait .msec h3{margin:0 0 .55em;font-size:.86em;font-weight:700;color:var(--feather)}
+body.portrait .hint2{margin:.5em 0 0;font-size:.62em;color:var(--mute);text-align:center}
+body.portrait .hint3{margin:.3em 0 0;font-size:.6em;color:var(--mute)}
+body.portrait #mob #subs,body.portrait #mob #cmp,body.portrait #mob #left,body.portrait #mob #panel,body.portrait #mob #refsBtn{position:static;inset:auto;transform:none;width:auto;opacity:1}
+body.portrait #mob #subs{font-size:.8em;margin:0;padding:.6em .8em}
+body.portrait #mob #cmp{font-size:.8em;display:block;padding:.3em}
+body.portrait #mob #left{font-size:.78em;padding:.6em .7em}
+body.portrait #mob #left h4{display:none}
+body.portrait #mob #bars{display:grid;grid-template-columns:1fr 1fr;gap:0 1.1em}
+body.portrait #mob #spark,body.portrait #mob #peakRow{display:flex}body.portrait #mob #spark{display:block;height:3.2em}
+body.portrait #mob #panel{display:block;aspect-ratio:600/340}
+body.portrait #mob #panel.full{position:fixed;inset:0;z-index:30;aspect-ratio:auto}
+body.portrait #mob #refsBtn{font-size:.8em;margin:0 auto;display:block}

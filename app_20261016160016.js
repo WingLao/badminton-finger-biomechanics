@@ -601,8 +601,17 @@ function confetti(cv) {
     if (portrait) { const th = Math.round(ch * SPLIT_Y); return [[0, ch - th, cw, th], [0, 0, cw, ch - th]]; }
     const sx = Math.round(cw * SPLIT); return [[0, 0, sx, ch], [sx, 0, cw - sx, ch]];
   }
+  // 手機直向：上方兩個 3D 畫面，下方可捲動的圖解與數據；電腦版放回原位
+  let relaid = false;
+  function relayout() {
+    relaid = true;
+    const st = $('stage');
+    if (portrait) { $('msSubs').prepend($('subs')); $('msRel').append($('cmp')); $('msMus').append($('left')); $('msHeat').append($('panel')); $('msRef').append($('refsBtn')); setRel(true); }
+    else { for (const id of ['subs', 'cmp', 'left', 'panel', 'refsBtn']) st.insertBefore($(id), $('mob')); setRel(relOnFlag); }
+  }
   function resize() {
     const was = portrait; portrait = innerHeight > innerWidth * 1.05; document.body.classList.toggle('portrait', portrait); // 依視窗方向切換版面
+    if (was !== portrait || !relaid) relayout();
     const r = canvas.getBoundingClientRect(); renderer.setSize(r.width, r.height, false);
     window.dispatchEvent(new Event('bgresize'));
     if (was !== portrait && typeof curView !== 'undefined') setView(curView, true);
