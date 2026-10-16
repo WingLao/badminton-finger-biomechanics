@@ -194,3 +194,11 @@ body.portrait #sound{bottom:1.2%;font-size:.7em}
 body.portrait #refsBtn{bottom:1.6%;font-size:.48em}
 body.portrait #subs{bottom:11.5%;font-size:.5em}
 body.portrait #cmp{left:auto;right:.5em;width:64%;top:calc(55% + 1.8em);font-size:.42em}
+
+/* 關聯圖縮小並可關閉，避免遮住 3D */
+#cmp{width:24%;font-size:.5em;opacity:.92}#cmp.hide{display:none}
+#cmp .research,.rel .res{opacity:.9}
+#subs{right:1.2em;left:calc(58% + 1em);bottom:.6em;font-size:.56em}
+#vrBtn{position:absolute;left:calc(58% + 1em);bottom:8.2em;padding:.35em 1em;border-radius:999px;border:1px solid var(--cork);background:rgba(0,0,0,.6);color:var(--cork);font:700 .62em var(--sans);cursor:pointer;z-index:3}
+body.portrait #cmp{width:auto;left:.5em;right:.5em;font-size:.42em}
+body.portrait #vrBtn{left:auto;right:.5em;bottom:auto;top:calc(55% + .4em)}

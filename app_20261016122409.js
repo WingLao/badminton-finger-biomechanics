@@ -1,6 +1,7 @@
 // 3D 羽毛球手指發力教學（F2–F5）：MyoSim 骨骼＋手肘＋肌肉＋拍面與羽球對照；p5.js 背景；支援手機
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
 import { loadMyoSim } from './myosim_20261016100828.js';
 
 const $ = (id) => document.getElementById(id);
@@ -139,6 +140,9 @@ function confetti(cv) {
   const key = new THREE.DirectionalLight(0xffffff, 1.5); key.position.set(40, 60, 50); scene.add(key);
   const rim = new THREE.DirectionalLight(0x7dd3fc, 0.7); rim.position.set(-40, 10, -50); scene.add(rim);
   const controls = new OrbitControls(camera, canvas); controls.enableDamping = true;
+  // WebXR：支援的頭戴裝置（例如 Quest 瀏覽器）才顯示「進入 VR」
+  renderer.xr.enabled = true;
+  if (navigator.xr) navigator.xr.isSessionSupported('immersive-vr').then((ok) => { if (!ok) return; const b = VRButton.createButton(renderer); b.id = 'vrBtn'; b.removeAttribute('style'); document.getElementById('stage').append(b); }).catch(() => {});
 
   const M = await loadMyoSim('assets/');
   scene.add(M.root);
@@ -200,7 +204,7 @@ function confetti(cv) {
   grip.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(gx, gy, gz));
   handB.add(grip);
   // 手指收緊時，拍柄繞「拇指＋食指 V 字」支點轉動（槓桿），讓拍頭多加速
-  const PIVOT_Y = 0.035, LEVER_MAX = 18;
+  const PIVOT_Y = 0.035, LEVER_MAX = 28; // 加大手指槓桿，讓「有用／沒用手指」差別看得出來
   const leverP = new THREE.Group(); leverP.position.y = PIVOT_Y; grip.add(leverP);
   const leverG = new THREE.Group(); leverP.add(leverG);
   const leverO = new THREE.Group(); leverO.position.y = -PIVOT_Y; leverG.add(leverO);
@@ -363,11 +367,18 @@ function confetti(cv) {
   const TRAIL = ['#E8B04B', '#4CC9F0', '#E8B04B'];
   const pool = [0, 1, 2].map((i) => ({ real: makeShuttle(TRAIL[i], false), ghost: makeShuttle('#94a3b8', true) }));
   const shots = {}; // 依關鍵影格編號記錄每一球
+  const endReal = label('有用手指', '#6AA8FF', 22), endGhost = label('沒用手指', '#94a3b8', 22);
+  let endDiff = label('遠 +0%', '#E8B04B', 20), endDiffText = '';
+  const gapLineG = new THREE.BufferGeometry(); gapLineG.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+  const gapLine = new THREE.Line(gapLineG, new THREE.LineDashedMaterial({ color: 0xe8b04b, dashSize: 3, gapSize: 2 })); gapLine.frustumCulled = false; scene.add(gapLine);
+  for (const o of [endReal, endGhost, endDiff, gapLine]) o.layers.set(1);
+  const hideEnds = () => { endReal.visible = endGhost.visible = endDiff.visible = gapLine.visible = false; };
+  hideEnds();
   const VIN = 120, GRAV = new THREE.Vector3(0, -45, 0), DRAG = 1.1, UP = new THREE.Vector3(0, 1, 0);
   const ballAt = (P0, v0, tau) => P0.clone().addScaledVector(v0, (1 - Math.exp(-DRAG * tau)) / DRAG).addScaledVector(GRAV, 0.5 * tau * tau);
   function orient(obj, dir) { obj.quaternion.setFromUnitVectors(UP, dir.clone().normalize()); }
   function pushTrail(sh, p) { const a = sh.trail.geometry.attributes.position; if (sh.n >= 120) return; a.setXYZ(sh.n++, p.x, p.y, p.z); a.needsUpdate = true; sh.trail.geometry.setDrawRange(0, sh.n); }
-  function resetShots() { for (const k in shots) delete shots[k]; for (const p of pool) for (const sh of [p.real, p.ghost]) { sh.n = 0; sh.trail.geometry.setDrawRange(0, 0); sh.g.visible = false; } }
+  function resetShots() { hideEnds?.(); endDiffText = ''; for (const k in shots) delete shots[k]; for (const p of pool) for (const sh of [p.real, p.ghost]) { sh.n = 0; sh.trail.geometry.setDrawRange(0, 0); sh.g.visible = false; } }
   const speedHist = { real: [], ghost: [] }, lastHead = { real: null, ghost: null };
   let cmpVals = null;
   function frameRight(st) { // 右相機：垂直於「拍桿＋擊球方向」平面，拍頭與球路同時入鏡
@@ -379,7 +390,7 @@ function confetti(cv) {
     const tgt = H.clone().multiplyScalar(2).add(far).add(G).multiplyScalar(1 / 4);
     const ext = Math.max(H.distanceTo(far), H.distanceTo(G), far.distanceTo(G));
     rightCam.position.copy(tgt).addScaledVector(side, ext * 2.25).add(new THREE.Vector3(0, ext * 0.25, 0));
-    rightCam.lookAt(tgt.clone().add(new THREE.Vector3(0, -ext * 0.08, 0))); // 往上看一點，避開上方對照卡
+    rightCam.lookAt(tgt.clone().add(new THREE.Vector3(0, -ext * 0.2, 0))); // 物件在畫面偏上，避開下方字幕
   }
 
   // ---------- 視角 ----------
@@ -579,6 +590,9 @@ function confetti(cv) {
   $('panel').onclick = () => $('panel').classList.toggle('full');
   $('refsBtn').onclick = () => $('refs').classList.add('show'); $('refsClose').onclick = () => $('refs').classList.remove('show');
   $('heatBtn').onclick = () => $('panel').classList.toggle('full');
+  const setRel = (on) => { $('cmp').classList.toggle('hide', !on); $('relBtn').classList.toggle('on', on); $('relBtn').textContent = on ? '圖解：開' : '圖解：關'; };
+  let relOnFlag = !(innerHeight > innerWidth * 1.05); setRel(relOnFlag); // 手機預設關閉
+  $('relBtn').onclick = () => setRel((relOnFlag = !relOnFlag));
 
   const SPLIT = 0.58, SPLIT_Y = 0.55; // 桌面：左右分割｜手機直向：上下分割
   let portrait = false;
@@ -647,15 +661,25 @@ function confetti(cv) {
           const avg = (a) => Math.max(...a.slice(-10), 1);
           const vr = avg(speedHist.real), vg = avg(speedHist.ghost);
           const d = hitDirW(type).add(new THREE.Vector3(0, isNet ? 0.35 : 0.12, 0)).normalize(), dg = hitDirW(type, ghostHead).add(new THREE.Vector3(0, 0.12, 0)).normalize();
-          const base = isNet ? 70 : 230, ratio = st.cmp === 'ghost' ? clamp(vr / vg, 1, 1.8) : 1;
-          shots[k.i] = { P0: headW().addScaledVector(d, 2), v0: d.multiplyScalar(base * (st.cmp === 'ghost' ? 0.72 * ratio : 1)), Pg: headW(ghostHead).addScaledVector(dg, 2), vg: dg.multiplyScalar(base * 0.72) };
+          const base = isNet ? 70 : 250, ratio = st.cmp === 'ghost' ? clamp(vr / vg, 1.15, 1.9) : 1;
+          shots[k.i] = { P0: headW().addScaledVector(d, 2), v0: d.multiplyScalar(base * (st.cmp === 'ghost' ? 0.62 * ratio : 1)), Pg: headW(ghostHead).addScaledVector(dg, 2), vg: dg.multiplyScalar(base * 0.62), si };
           pl.real.n = 0; pl.ghost.n = 0;
           if (st.cmp === 'ghost') cmpVals = { real: 100 * ratio, ghost: 100 };
         }
         const sh = shots[k.i], tau = Math.min(dtk, 1.2);
         const p = ballAt(sh.P0, sh.v0, tau), v = sh.v0.clone().multiplyScalar(Math.exp(-DRAG * tau)).addScaledVector(GRAV, tau);
         pl.real.g.visible = true; pl.real.g.position.copy(p); orient(pl.real.g, v); pushTrail(pl.real, p);
-        if (st.cmp === 'ghost') { const pg = ballAt(sh.Pg, sh.vg, tau), vgv = sh.vg.clone().multiplyScalar(Math.exp(-DRAG * tau)).addScaledVector(GRAV, tau); pl.ghost.g.visible = true; pl.ghost.g.position.copy(pg); orient(pl.ghost.g, vgv); pushTrail(pl.ghost, pg); }
+        if (st.cmp === 'ghost') {
+          const pg = ballAt(sh.Pg, sh.vg, tau), vgv = sh.vg.clone().multiplyScalar(Math.exp(-DRAG * tau)).addScaledVector(GRAV, tau); pl.ghost.g.visible = true; pl.ghost.g.position.copy(pg); orient(pl.ghost.g, vgv); pushTrail(pl.ghost, pg);
+          // 兩顆球的位置標記＋虛線＋距離差（最近一球）
+          const dR = p.distanceTo(sh.P0), dG = pg.distanceTo(sh.Pg), pct = Math.round((dR / Math.max(dG, 1e-3) - 1) * 100);
+          endReal.position.copy(p).add(new THREE.Vector3(0, 9, 0)); endGhost.position.copy(pg).add(new THREE.Vector3(0, -9, 0));
+          const a = gapLine.geometry.attributes.position; a.setXYZ(0, p.x, p.y, p.z); a.setXYZ(1, pg.x, pg.y, pg.z); a.needsUpdate = true; gapLine.computeLineDistances();
+          const t2 = `遠 +${Math.max(0, pct)}%`; if (t2 !== endDiffText && tau > 0.25) { endDiffText = t2; scene.remove(endDiff); endDiff = label(t2, '#E8B04B', 20); endDiff.layers.set(1); }
+          endDiff.position.copy(p).lerp(pg, 0.5).add(new THREE.Vector3(14, 0, 0));
+          endReal.visible = endGhost.visible = gapLine.visible = tau > 0.12; endDiff.visible = tau > 0.25;
+          if (tau > 0.12) tagReal.visible = tagGhost.visible = tagFace.visible = false; // 球飛出後只留落點標記，避免重疊
+        }
       });
       
     } else for (const pl of pool) pl.real.g.visible = pl.ghost.g.visible = false;
@@ -696,12 +720,13 @@ function confetti(cv) {
     hist.push(g); hist.shift();
     if (++panelTick % 6 === 0) { renderRel(); $('spark').innerHTML = sparkline(); $('peak').textContent = `${Math.round(Math.max(...hist) * 100)}%`; $('panel').innerHTML = panelSVG(state, st) + `<span class="hint">${$('panel').classList.contains('full') ? '點擊縮回' : '點擊放大'}</span>`; }
     if (anim && !voice.paused) renderSubs(voice.currentTime);
-    if (!camTween && anim) { // 鏡頭平順跟隨手部，手永遠在畫面中央（仍可拖曳旋轉）
+    if (!camTween && anim && !renderer.xr.isPresenting) { // 鏡頭平順跟隨手部，手永遠在畫面中央（仍可拖曳旋轉）
       const d = focusFor(curView).sub(controls.target).multiplyScalar(Math.min(1, dt * 3));
       controls.target.add(d); camera.position.add(d);
     }
     if (camTween) { camTween.t = Math.min(1, camTween.t + dt * 1.5); const e = ease(camTween.t); camera.position.lerpVectors(camTween.from, camTween.to, e); controls.target.lerpVectors(camTween.tf, camTween.tt, e); if (camTween.t >= 1) camTween = null; }
     controls.update();
+    if (renderer.xr.isPresenting) { renderer.render(scene, camera); return; } // VR 中只用頭戴裝置的視角
     const [A, B] = rects();
     renderer.setScissorTest(true); renderer.setClearColor(0x000000, 0); // 透明：露出 p5.js 背景
     renderer.setViewport(...A); renderer.setScissor(...A); camera.aspect = A[2] / A[3]; camera.updateProjectionMatrix(); renderer.render(scene, camera);
@@ -718,5 +743,10 @@ function confetti(cv) {
   if (q.get('clean')) document.querySelectorAll('#top,#left,.cluster,#subs,#panel,#nav,#sound,#dbgBtn,.credit').forEach((e) => (e.style.display = 'none'));
   if (q.get('pose')) { $('intro').remove(); state = { ...resolve({ pose: q.get('pose'), pron: +(q.get('pron') || 0), roll: +(q.get('roll') || 0) }) }; anim = null; setView(q.get('view') || 'palm', true); applyPose(state); frameRight(STEPS[+(q.get('s') || 2) - 1]); renderRel(); }
   else if (q.get('step')) { $('intro').remove(); sound.init(); startStep(+q.get('step') - 1); }
+  renderer.xr.addEventListener('sessionstart', () => { // VR：場景改為公尺尺度，拍柄放在眼前 45 cm、高 1.2 m
+    scene.scale.setScalar(0.01); scene.position.set(0, 0, 0); scene.updateMatrixWorld(true);
+    const g = grip.getWorldPosition(new THREE.Vector3()); scene.position.set(-g.x, 1.2 - g.y, -0.45 - g.z);
+  });
+  renderer.xr.addEventListener('sessionend', () => { scene.scale.setScalar(1); scene.position.set(0, 0, 0); });
   window.__ready = { PRON, TH, TA }; window.__M = M;
 })().catch((e) => { const d = document.createElement('div'); d.id = 'err'; d.textContent = `載入失敗：${e.message}`; document.getElementById('stage').append(d); console.error(e); });
