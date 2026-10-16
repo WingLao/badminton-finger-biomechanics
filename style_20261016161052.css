@@ -232,3 +232,15 @@ body.portrait #mob #spark,body.portrait #mob #peakRow{display:flex}body.portrait
 body.portrait #mob #panel{display:block;aspect-ratio:600/340}
 body.portrait #mob #panel.full{position:fixed;inset:0;z-index:30;aspect-ratio:auto}
 body.portrait #mob #refsBtn{font-size:.8em;margin:0 auto;display:block}
+
+/* 手機：3D 縮為 60dvh；因果圖在字幕上方；熱力圖留在主畫面（手指畫面角落） */
+body.portrait #gl,body.portrait #bg{height:60dvh}
+body.portrait #mob{padding-top:60dvh}
+body.portrait #divider{top:33dvh}
+body.portrait #vl2,body.portrait #vrBtn{top:calc(33dvh + .4em)}
+body.portrait #views{top:calc(60dvh - 2.5em)}
+body.portrait #msRel{padding:.4em .5em .2em;border-top:0}body.portrait #msSubs{padding:.3em .5em .6em;border-top:0}
+body.portrait #mob #cmp{font-size:.72em;padding:.2em .3em}
+body.portrait #mob #subs{font-size:.74em}
+body.portrait #panel{display:block;position:absolute;left:.5em;right:auto;bottom:auto;top:calc(33dvh - 25vw);width:44vw;aspect-ratio:600/340;z-index:4}
+body.portrait #panel.full{position:fixed;inset:0;width:100%;height:100%;top:0;left:0;aspect-ratio:auto;z-index:30}

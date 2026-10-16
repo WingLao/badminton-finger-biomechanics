@@ -606,8 +606,8 @@ function confetti(cv) {
   function relayout() {
     relaid = true;
     const st = $('stage');
-    if (portrait) { $('msSubs').prepend($('subs')); $('msRel').append($('cmp')); $('msMus').append($('left')); $('msHeat').append($('panel')); $('msRef').append($('refsBtn')); setRel(true); }
-    else { for (const id of ['subs', 'cmp', 'left', 'panel', 'refsBtn']) st.insertBefore($(id), $('mob')); setRel(relOnFlag); }
+    if (portrait) { $('msRel').append($('cmp')); $('msSubs').prepend($('subs')); $('msMus').append($('left')); $('msRef').append($('refsBtn')); setRel(true); } // 熱力圖留在主畫面
+    else { for (const id of ['subs', 'cmp', 'left', 'refsBtn']) st.insertBefore($(id), $('mob')); setRel(relOnFlag); }
   }
   function resize() {
     const was = portrait; portrait = innerHeight > innerWidth * 1.05; document.body.classList.toggle('portrait', portrait); // 依視窗方向切換版面
