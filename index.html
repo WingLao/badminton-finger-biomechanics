@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="./vendor/p5.min.js"></script>
+<title>羽毛球手指發力</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style_20261016110948.css">
+<script type="importmap">{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }</script>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <canvas id="gl"></canvas>
+  <div id="divider"></div><div class="vlabel" id="vl1">① 手指怎麼用力</div><div class="vlabel" id="vl2">② 拍面和羽球怎麼反應</div>
+  <div id="cmp"></div>
+  <div id="top"><div id="progress"><i></i></div><div id="dots"></div><div id="title"><small>BADMINTON FINGER POWER</small>羽毛球手指發力</div></div>
+  <div id="left"><h4>肌肉用力程度</h4><div id="bars"></div>
+    <div id="peakRow"><span>握力變化（近 3 秒）</span><span>最大 <b id="peak">0%</b></span></div><div id="spark"></div></div>
+  <div class="cluster" id="views"><span class="label">視角</span><button data-view="palm">看手心</button><button data-view="dorsal">看手背</button><button data-view="butt">看拍柄底</button><button data-view="arm">看全手臂</button><button id="musBtn" class="on">隱藏肌肉層</button><button id="heatBtn">用力熱力圖</button></div>
+  <div class="cluster" id="speeds"><span class="label">速度</span><button data-speed="0.25">0.25x</button><button data-speed="0.5">0.5x</button><button data-speed="1" class="on">1.0x</button></div>
+  <button id="dbgBtn">關節微調（老師用）</button>
+  <div id="dbg"><label style="display:flex;gap:.5em"><input type="checkbox" id="dbgOn">啟用手動關節角（覆蓋動畫）</label><div id="dbgList"></div></div>
+  <div id="sound"><button id="mute">靜音</button><label for="vol">音樂</label><input id="vol" type="range" min="0" max="1" step="0.05" value="0.5"></div>
+  <div id="nav"><button id="btnPrev">上一步</button><button id="btnReplay">重播</button><button id="btnNext">繼續</button></div>
+  <div id="subs"></div>
+  <div id="panel"></div>
+  <div id="finish"><button class="big warm" id="finishBtn">完成訓練</button></div>
+  <canvas id="confetti"></canvas>
+  <div class="overlay" id="refs"><div class="refbox">
+    <h2>資料出處</h2>
+    <h4>研究</h4>
+    <ul>
+      <li><a href="https://efsupit.ro/images/stories/septembrie2024/Art%20247.pdf" target="_blank" rel="noopener">Pan, Kao &amp; Tsai（2024）。三種正手過頂擊球的握力與手掌壓力分佈。Journal of Physical Education and Sport, 24(9)</a>：中指末節受力最大；峰值在觸球前約 20–30 ms；手掌 18 區分區</li>
+      <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12876968/" target="_blank" rel="noopener">Liu 等（2026）。以實際擊球情境的握力評估羽球表現。Scientific Reports, 16:5055</a>：高手握力時間較短（殺球 0.41 s vs 1.25 s）；放網握力較小</li>
+      <li><a href="http://www.journals.com.tw/jtepd/upload/journal/prog/6%E7%BE%BD%E7%90%83%E6%AE%BA%E7%90%83%E6%89%8B%E8%87%82%E8%82%8C%E7%BE%A4%E8%82%8C%E9%9B%BB%E6%B4%BB%E5%8C%96%E6%83%85%E5%BD%A2%E5%9C%A8%E8%A8%93%E7%B7%B4%E7%9A%84%E5%95%9F%E7%A4%BA.pdf" target="_blank" rel="noopener">王可富、黃連興、廖悅茗（2008）。羽球殺球手臂肌群肌電活化情形在訓練的啟示。師資培育與教師專業發展期刊, 1(2)</a></li>
+      <li>Sakurai &amp; Ohtsuki（2000）。Journal of Sports Sciences, 18(11)：熟練者腕部肌肉用力時間較穩定（經 Pan 2024 文獻回顧引用）</li>
+      <li>Rossi 等（2010）：殺球時總握力最大（經 Pan 2024 文獻回顧引用）</li>
+    </ul>
+    <h4>教學資源</h4>
+    <ul>
+      <li><a href="https://badminton-insight.com/how-to-use-your-wrist-in-badminton/" target="_blank" rel="noopener">Badminton Insight：How To Use Your Wrist In Badminton</a></li>
+      <li><a href="https://www.youtube.com/watch?v=LEJrLziPAWw" target="_blank" rel="noopener">安東羽球教練：正反手如何握拍與發力（YouTube）</a></li>
+      <li><a href="https://shuttletime.bwfbadminton.com/" target="_blank" rel="noopener">BWF Shuttle Time 官方教材</a></li>
+    </ul>
+    <h4>模型與工具</h4>
+    <ul>
+      <li><a href="https://github.com/MyoHub/myo_sim" target="_blank" rel="noopener">MyoSim（MyoHub）肌肉骨骼模型</a>，Apache-2.0：手骨、手肘、肌腱路徑</li>
+      <li><a href="https://threejs.org/" target="_blank" rel="noopener">three.js</a>（3D）、<a href="https://p5js.org/" target="_blank" rel="noopener">p5.js</a>（背景）、<a href="https://github.com/rany2/edge-tts" target="_blank" rel="noopener">edge-tts</a>（旁白）</li>
+    </ul>
+    <p class="note">畫面中的關節角度、肌肉用力、握壓分佈與速度比較為教學示意，不是實測數據。</p>
+    <button class="big" id="refsClose">關閉</button>
+  </div></div>
+  <div class="overlay" id="intro">
+    <h1>羽毛球手指發力</h1>
+    <p>適合 F2–F5 學生。5 個步驟：輕輕握拍 → 正手發力 → 反手大拇指推 → 網前轉拍 → 快速平抽。<br>左邊看<b>手指怎麼用力</b>，右邊看<b>拍面和羽球</b>怎麼反應。畫面是真實的手骨和手肘。肌肉<b class="c-relax">青色＝放鬆</b>，<b class="c-force">紅色＝用力</b>。可以用滑鼠轉動畫面。建議戴耳機。</p>
+    <button class="big" id="btnStart">開始訓練</button>
+  </div>
+  <button id="refsBtn">資料出處</button>
+  <div class="credit">骨骼模型：MyoSim（MyoHub，Apache-2.0）｜動作與用力程度為教學示意</div>
+</div>
+<script src="./bg_20261016111854.js"></script>
+<script type="module" src="./app_20261016110948.js"></script>
+</body>
+</html>
