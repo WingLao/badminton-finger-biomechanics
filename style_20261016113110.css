@@ -160,3 +160,37 @@ button.on{background:var(--feather);color:#000;border-color:var(--feather);font-
 .credit{color:#4a5560}#refsBtn{border-color:var(--line)}
 
 @media (prefers-reduced-motion:reduce){.rel .edge.on,#btnNext.pulse{animation:none}}
+/* 版面比例：讓 3D 圖成為主角 */
+#left{font-size:.52em;width:15em}             /* 肌肉用力程度：約 0.7 倍 */
+#left .bar{height:.45em}#spark{height:3.4em}
+#subs{font-size:.62em;line-height:1.5;padding:.45em .8em}  /* 字幕再縮小 */
+body.portrait #left{font-size:.4em}
+body.portrait #subs{font-size:.52em}
+/* 位置改用百分比，縮小字級時不會位移 */
+#left{top:18.5%}
+#views,#speeds{font-size:.7em}                 /* 視角、速度按鈕：約 0.7 倍 */
+#views{top:20%}#speeds{top:47%}
+#vl1,#vl2{top:9.6%}
+body.portrait #left{top:12%}
+body.portrait #views{top:auto;font-size:.62em}body.portrait #speeds{top:12%;font-size:.62em}
+/* 2 張 3D 圖為主軸：其他介面再縮小、往邊緣靠 */
+#views,#speeds{font-size:.58em}
+#views{top:19%}#speeds{top:40%}
+#title{font-size:1.1em}#title small{font-size:.62em}
+.vlabel{font-size:.64em}
+#cmp{font-size:.6em;left:auto;right:1.2em;width:29%;padding:.4em .5em .2em}
+#panel{width:16%;right:calc(42% + .8em);bottom:1em}
+#nav button{font-size:.64em;padding:.35em .85em}#nav{bottom:1em}
+#sound{font-size:.72em;bottom:3.6em}#dbgBtn{font-size:.48em;bottom:16em}
+#refsBtn{font-size:.5em}.credit{font-size:.42em}
+body.portrait #cmp{width:auto;left:.5em;right:.5em;font-size:.5em}
+body.portrait #views,body.portrait #speeds{font-size:.55em}
+/* 手機直向：底部三排（字幕 → 視角 → 導覽）不重疊 */
+body.portrait #views{font-size:.82em;top:auto;bottom:6.2%;left:.5em;right:.5em;flex-direction:row;flex-wrap:nowrap;justify-content:center;gap:.3em;overflow-x:auto}
+body.portrait #views button{padding:.3em .6em;white-space:nowrap}
+body.portrait #speeds{font-size:.7em}
+body.portrait #nav{bottom:1.2%}body.portrait #nav button{font-size:.62em}
+body.portrait #sound{bottom:1.2%;font-size:.7em}
+body.portrait #refsBtn{bottom:1.6%;font-size:.48em}
+body.portrait #subs{bottom:11.5%;font-size:.5em}
+body.portrait #cmp{left:auto;right:.5em;width:64%;top:calc(55% + 1.8em);font-size:.42em}

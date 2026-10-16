@@ -378,23 +378,25 @@ function confetti(cv) {
     const G = grip.getWorldPosition(new THREE.Vector3()), far = H.clone().addScaledVector(n, 95);
     const tgt = H.clone().multiplyScalar(2).add(far).add(G).multiplyScalar(1 / 4);
     const ext = Math.max(H.distanceTo(far), H.distanceTo(G), far.distanceTo(G));
-    rightCam.position.copy(tgt).addScaledVector(side, ext * 2.8).add(new THREE.Vector3(0, ext * 0.25, 0));
+    rightCam.position.copy(tgt).addScaledVector(side, ext * 2.25).add(new THREE.Vector3(0, ext * 0.25, 0));
     rightCam.lookAt(tgt.clone().add(new THREE.Vector3(0, -ext * 0.08, 0))); // 往上看一點，避開上方對照卡
   }
 
   // ---------- 視角 ----------
   const focusW = () => grip.localToWorld(new THREE.Vector3(0, 0.0, 0));
   let camTween = null, curView = 'palm';
+  function focusFor(v) { // 鏡頭中心：手指特寫以拍柄為中心；全手臂視角往手肘靠
+    const g0 = focusW(); return v === 'arm' ? g0.lerp(W('ulna_r'), 0.45) : v === 'butt' ? g0 : g0.lerp(W('ulna_r'), 0.1);
+  }
   function setView(v, instant) {
     curView = v; M.root.updateMatrixWorld(true);
     const g0 = focusW(), n = curN(), ax = new THREE.Vector3(0, 1, 0).transformDirection(grip.matrixWorld);
-    const c = v === 'butt' ? g0 : g0.clone().lerp(W('ulna_r'), v === 'arm' ? 0.45 : 0.22); // 手指特寫，手肘在畫面邊緣；全手臂視角看到整條手臂
+    const c = focusFor(v);
     let to;
     // n＝掌心法向（由掌心指向拍柄）；掌心視角從拍柄外側看向掌心
-    if (v !== 'butt') c.y -= 5; // 擊球時手肘伸直會讓手往下，鏡頭中心略低
-    if (v === 'palm') to = c.clone().addScaledVector(n, 86).add(new THREE.Vector3(0, 12, 0));
+    if (v === 'palm') to = c.clone().addScaledVector(n, 70).add(new THREE.Vector3(0, 10, 0)); // 3D 為主角：鏡頭拉近
     else if (v === 'arm') to = c.clone().addScaledVector(n, 92).add(new THREE.Vector3(0, 18, 0));
-    else if (v === 'dorsal') to = c.clone().addScaledVector(n, -76).add(new THREE.Vector3(0, 12, 0));
+    else if (v === 'dorsal') to = c.clone().addScaledVector(n, -66).add(new THREE.Vector3(0, 10, 0));
     else to = c.clone().addScaledVector(ax, -40).addScaledVector(n, 6);
     if (portrait) to.sub(c).multiplyScalar(1.25).add(c); // 手機直向畫面較窄，鏡頭拉遠
     camTween = { from: camera.position.clone(), to, tf: controls.target.clone(), tt: c, t: instant ? 1 : 0 };
@@ -694,6 +696,10 @@ function confetti(cv) {
     hist.push(g); hist.shift();
     if (++panelTick % 6 === 0) { renderRel(); $('spark').innerHTML = sparkline(); $('peak').textContent = `${Math.round(Math.max(...hist) * 100)}%`; $('panel').innerHTML = panelSVG(state, st) + `<span class="hint">${$('panel').classList.contains('full') ? '點擊縮回' : '點擊放大'}</span>`; }
     if (anim && !voice.paused) renderSubs(voice.currentTime);
+    if (!camTween && anim) { // 鏡頭平順跟隨手部，手永遠在畫面中央（仍可拖曳旋轉）
+      const d = focusFor(curView).sub(controls.target).multiplyScalar(Math.min(1, dt * 3));
+      controls.target.add(d); camera.position.add(d);
+    }
     if (camTween) { camTween.t = Math.min(1, camTween.t + dt * 1.5); const e = ease(camTween.t); camera.position.lerpVectors(camTween.from, camTween.to, e); controls.target.lerpVectors(camTween.tf, camTween.tt, e); if (camTween.t >= 1) camTween = null; }
     controls.update();
     const [A, B] = rects();
